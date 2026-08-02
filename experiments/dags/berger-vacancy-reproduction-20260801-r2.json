@@ -1,0 +1,144 @@
+{
+  "experiment_id": "berger-vacancy-reproduction-20260801-r2",
+  "parent_experiment_id": "berger-vacancy-reproduction-20260801-r1",
+  "revision": 2,
+  "decision_node_id": "select_dft_case",
+  "change_summary": "Add a decision-selected atomistic visualization for the predeclared held-out DFT target. The frozen panel, source data, model protocols, thresholds, and decision rule are unchanged; only the final decision node now receives the persisted frozen geometry so it can render the promoted case without a visual selection step.",
+  "dag": [
+    {
+      "id": "prepare_paper_subset",
+      "type": "SCRIPT",
+      "depends_on": [],
+      "params": {
+        "script": "berger_vacancy_subset.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "manifest_path": "atomforge/data/berger_vacancy_subset.json",
+          "dataset_cache_dir": "/benchmark-cache",
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "selected_case_count": "count",
+          "dataset_checksum_passed": "dimensionless",
+          "minimum_supercell_length": "Å",
+          "dataset_cache_hit": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "reproduce_mace",
+      "type": "SCRIPT",
+      "depends_on": ["prepare_paper_subset"],
+      "params": {
+        "script": "berger_vacancy_mace.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "source_node": "prepare_paper_subset",
+          "device": "cuda",
+          "reproduction_tolerance_eV": 0.1,
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "case_count": "count",
+          "reproduction_pass_count": "count",
+          "mean_absolute_reproduction_error": "eV",
+          "max_absolute_reproduction_error": "eV",
+          "numerical_gate_passed": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "evaluate_mattersim",
+      "type": "SCRIPT",
+      "depends_on": ["prepare_paper_subset"],
+      "params": {
+        "script": "berger_vacancy_mattersim.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "source_node": "prepare_paper_subset",
+          "device": "cuda",
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "case_count": "count",
+          "finite_case_count": "count",
+          "max_single_point_force": "eV/Å",
+          "numerical_gate_passed": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "select_dft_case",
+      "type": "SCRIPT",
+      "depends_on": ["prepare_paper_subset", "reproduce_mace", "evaluate_mattersim"],
+      "params": {
+        "script": "vacancy_disagreement_rank.py",
+        "execution_profile": "analysis",
+        "arguments": {
+          "mace_node": "reproduce_mace",
+          "mattersim_node": "evaluate_mattersim",
+          "geometry_node": "prepare_paper_subset",
+          "expected_case_count": 5,
+          "promotion_threshold_eV": 0.25
+        },
+        "output_metrics": {
+          "candidate_count": "count",
+          "reproduction_pass_count": "count",
+          "eligible_candidate_count": "count",
+          "max_reproduction_error": "eV",
+          "max_cross_model_disagreement": "eV",
+          "promotion_made": "dimensionless",
+          "decision_gate_passed": "dimensionless"
+        },
+        "timeout_seconds": 60
+      }
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "frozen_subset_loaded",
+      "target_node": "prepare_paper_subset",
+      "metric": "selected_case_count",
+      "assertion": "target.selected_case_count == 5"
+    },
+    {
+      "id": "published_dataset_verified",
+      "target_node": "prepare_paper_subset",
+      "metric": "dataset_checksum_passed",
+      "assertion": "target.dataset_checksum_passed == 1"
+    },
+    {
+      "id": "paper_subset_reproduced",
+      "target_node": "reproduce_mace",
+      "metric": "reproduction_pass_count",
+      "assertion": "target.reproduction_pass_count == 5"
+    },
+    {
+      "id": "mace_outputs_finite",
+      "target_node": "reproduce_mace",
+      "metric": "numerical_gate_passed",
+      "assertion": "target.numerical_gate_passed == 1"
+    },
+    {
+      "id": "mattersim_subset_complete",
+      "target_node": "evaluate_mattersim",
+      "metric": "finite_case_count",
+      "assertion": "target.finite_case_count == 5"
+    },
+    {
+      "id": "mattersim_outputs_finite",
+      "target_node": "evaluate_mattersim",
+      "metric": "numerical_gate_passed",
+      "assertion": "target.numerical_gate_passed == 1"
+    },
+    {
+      "id": "bounded_decision_recorded",
+      "target_node": "select_dft_case",
+      "metric": "decision_gate_passed",
+      "assertion": "target.decision_gate_passed == 1"
+    }
+  ]
+}

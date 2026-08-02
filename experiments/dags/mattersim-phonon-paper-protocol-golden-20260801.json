@@ -1,0 +1,122 @@
+{
+  "experiment_id": "mattersim-phonon-paper-protocol-golden-20260801",
+  "decision_node_id": "six_case_protocol_check",
+  "dag": [
+    {
+      "id": "six_case_protocol_check",
+      "type": "SCRIPT",
+      "depends_on": [],
+      "params": {
+        "script": "mattersim_phonon_scale_pilot.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "device": "cuda",
+          "sample_size": 6,
+          "population_sample_size": 6,
+          "shard_index": 0,
+          "shard_count": 1,
+          "selection_seed": 20260801,
+          "case_ids": [
+            "mp-134",
+            "mp-30",
+            "mp-149",
+            "mp-2534",
+            "mp-1265",
+            "mp-22862"
+          ],
+          "relax_fmax_eV_per_A": 0.005,
+          "relax_max_steps": 100,
+          "finite_displacement_A": 0.03,
+          "mean_frequency_mae_tolerance_meV": 2.0,
+          "max_material_mae_tolerance_meV": 5.0,
+          "significant_imaginary_frequency_threshold_meV": -1.0,
+          "inference_batch_size": 8,
+          "batch_equivalence_tolerance_eV_per_A": 0.00001,
+          "dataset_cache_dir": "/benchmark-cache/phonon-datasets",
+          "cache_probe_id": "paper-protocol-golden-20260801",
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "pilot_case_count": "count",
+          "pilot_wall_time": "s",
+          "pilot_mean_case_time": "s",
+          "pilot_p95_case_time": "s",
+          "pilot_throughput": "cases/min",
+          "pilot_gpu_average_utilization": "%",
+          "pilot_gpu_p95_utilization": "%",
+          "pilot_gpu_peak_memory": "MiB",
+          "pilot_gpu_peak_memory_fraction": "%",
+          "pilot_host_cpu_average_utilization": "%",
+          "pilot_process_cpu_average_utilization": "%",
+          "pilot_telemetry_sample_count": "count",
+          "pilot_mean_phonon_frequency_mae": "meV",
+          "pilot_median_phonon_frequency_mae": "meV",
+          "pilot_worst_material_phonon_frequency_mae": "meV",
+          "pilot_max_relaxation_force": "eV/Å",
+          "pilot_materials_with_imaginary_modes": "count",
+          "pilot_dft_reference_materials_with_imaginary_modes": "count",
+          "pilot_numerical_quality_gate_passed": "dimensionless",
+          "pilot_resource_telemetry_gate_passed": "dimensionless",
+          "pilot_operational_gate_passed": "dimensionless",
+          "pilot_inference_batch_size": "count",
+          "pilot_batch_equivalence_max_force_delta": "eV/Å",
+          "pilot_batch_equivalence_gate_passed": "dimensionless",
+          "pilot_dataset_cache_hit": "dimensionless"
+        },
+        "timeout_seconds": 3600
+      }
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "six_cases_complete",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_case_count",
+      "assertion": "target.pilot_case_count == 6"
+    },
+    {
+      "id": "golden_mean_under_two_mev",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_mean_phonon_frequency_mae",
+      "assertion": "target.pilot_mean_phonon_frequency_mae < 2"
+    },
+    {
+      "id": "golden_worst_under_five_mev",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_worst_material_phonon_frequency_mae",
+      "assertion": "target.pilot_worst_material_phonon_frequency_mae < 5"
+    },
+    {
+      "id": "golden_reference_stable",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_dft_reference_materials_with_imaginary_modes",
+      "assertion": "target.pilot_dft_reference_materials_with_imaginary_modes == 0"
+    },
+    {
+      "id": "golden_model_stable",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_materials_with_imaginary_modes",
+      "assertion": "target.pilot_materials_with_imaginary_modes == 0"
+    },
+    {
+      "id": "golden_numerical_quality",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_numerical_quality_gate_passed",
+      "assertion": "target.pilot_numerical_quality_gate_passed == 1"
+    },
+    {
+      "id": "golden_batch_equivalence",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_batch_equivalence_gate_passed",
+      "assertion": "target.pilot_batch_equivalence_gate_passed == 1"
+    },
+    {
+      "id": "golden_operational_quality",
+      "target_node": "six_case_protocol_check",
+      "metric": "pilot_operational_gate_passed",
+      "assertion": "target.pilot_operational_gate_passed == 1"
+    }
+  ],
+  "revision": 1,
+  "change_summary": "Golden bounded demo using the released paper protocol and six familiar stable crystals: 12 Å model supercells, mesh.conf MP grids, 0.03 Å displacements, fixed-cell FIRE fmax 0.005 eV/Å."
+}

@@ -1,0 +1,316 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #f8fafc;
+  --color-foreground: #1e293b;
+  --color-primary: #4f46e5;
+  --color-secondary: #64748b;
+  --color-accent: #be123c;
+}
+
+:root {
+  --background: #f8fafc;
+  --foreground: #1e293b;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    "Avenir Next", Avenir, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-kerning: normal;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.font-editorial {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+.data-value {
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-variant-ligatures: none;
+}
+
+/* The PKA explorer is a single dark instrument surface. These scoped overrides keep
+   the semantic component palette coherent while its layout remains readable. */
+.pka-shell [class*="bg-[#e7e3d8]"],
+.pka-shell [class*="bg-[#f4f1e8]"],
+.pka-shell [class*="bg-[#eeebe2]"],
+.pka-shell [class*="bg-[#e8e3d7]"] {
+  background-color: #16262e !important;
+}
+
+.pka-shell [class*="bg-[#dedacf]"],
+.pka-shell [class*="bg-[#e4e0d5]"] {
+  background-color: #243b44 !important;
+}
+
+.pka-shell [class*="border-[#cbc6b8]"],
+.pka-shell [class*="border-[#d8d4c8]"],
+.pka-shell [class*="border-[#dedbd1]"],
+.pka-shell [class*="border-[#ccc8bb]"] {
+  border-color: #30464f !important;
+}
+
+.pka-shell [class*="text-[#17252d]"],
+.pka-shell [class*="text-[#15242c]"],
+.pka-shell [class*="text-[#34444b]"] {
+  color: #edf1eb !important;
+}
+
+.pka-shell [class*="text-[#73766f]"],
+.pka-shell [class*="text-[#72766f]"],
+.pka-shell [class*="text-[#657177]"],
+.pka-shell [class*="text-[#657170]"],
+.pka-shell [class*="text-[#58666a]"],
+.pka-shell [class*="text-[#647078]"],
+.pka-shell [class*="text-[#7d7a70]"],
+.pka-shell [class*="text-[#71756e]"],
+.pka-shell [class*="text-[#74766e]"] {
+  color: #a7b4b3 !important;
+}
+
+.pka-shell {
+  color-scheme: dark;
+  --pka-grid: rgba(82, 116, 130, 0.16);
+}
+
+.pka-viewport {
+  background-color: #0b141a;
+  background-image:
+    linear-gradient(var(--pka-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pka-grid) 1px, transparent 1px),
+    radial-gradient(
+      circle at 46% 45%,
+      rgba(111, 63, 165, 0.16),
+      transparent 38%
+    );
+  background-size:
+    42px 42px,
+    42px 42px,
+    auto;
+}
+
+.pka-plot {
+  background: linear-gradient(
+    90deg,
+    rgba(18, 31, 39, 0.75),
+    rgba(13, 23, 30, 0.96)
+  );
+}
+
+.pka-metric {
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease;
+}
+
+.pka-metric:hover {
+  border-color: #46616e;
+  background-color: #15262f;
+}
+
+.pka-range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: #3b5360;
+}
+
+.pka-range::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  appearance: none;
+  border: 2px solid #0d171e;
+  border-radius: 999px;
+  background: #b879ff;
+  box-shadow:
+    0 0 0 1px #b879ff,
+    0 0 12px rgba(184, 121, 255, 0.7);
+}
+
+.pka-range::-moz-range-track {
+  height: 2px;
+  background: #3b5360;
+}
+
+.pka-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #0d171e;
+  border-radius: 999px;
+  background: #b879ff;
+  box-shadow:
+    0 0 0 1px #b879ff,
+    0 0 12px rgba(184, 121, 255, 0.7);
+}
+
+.parameter-range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: #3b5360;
+}
+
+.parameter-range::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  appearance: none;
+  border: 3px solid #0e1920;
+  border-radius: 999px;
+  background: #e28a5f;
+  box-shadow: 0 0 0 1px #e28a5f;
+}
+
+.parameter-range::-moz-range-track {
+  height: 2px;
+  background: #3b5360;
+}
+
+.parameter-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 3px solid #0e1920;
+  border-radius: 999px;
+  background: #e28a5f;
+  box-shadow: 0 0 0 1px #e28a5f;
+}
+
+.parameter-range:focus-visible {
+  outline: 2px solid #e28a5f;
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.app-shell .custom-scrollbar::-webkit-scrollbar-thumb,
+.pka-shell .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #3b5662;
+}
+
+.app-shell .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+.pka-shell .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #5d7b88;
+}
+
+.app-shell .custom-scrollbar,
+.pka-shell .custom-scrollbar {
+  scrollbar-color: #3b5662 #0d1920;
+  scrollbar-width: thin;
+}
+
+.app-shell .custom-scrollbar::-webkit-scrollbar-track,
+.pka-shell .custom-scrollbar::-webkit-scrollbar-track {
+  background: #0d1920;
+}
+
+.app-shell .graph-canvas {
+  scrollbar-gutter: stable;
+}
+
+.brief-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.brief-details[open] .brief-details-chevron {
+  transform: rotate(180deg);
+}
+
+/* One dark theme across the evidence console. */
+.app-shell {
+  color-scheme: dark;
+}
+
+.app-shell [class*="bg-slate-50"],
+.app-shell [class*="bg-white"] {
+  background-color: #16262e !important;
+}
+.app-shell [class*="bg-slate-950"] {
+  background-color: #101a20 !important;
+}
+.app-shell [class*="border-slate-200"],
+.app-shell [class*="border-slate-300"] {
+  border-color: #30464f !important;
+}
+.app-shell [class*="text-slate-950"],
+.app-shell [class*="text-slate-900"],
+.app-shell [class*="text-slate-800"],
+.app-shell [class*="text-slate-700"] {
+  color: #edf1eb !important;
+}
+.app-shell [class*="text-slate-600"],
+.app-shell [class*="text-slate-500"],
+.app-shell [class*="text-slate-400"] {
+  color: #a7b4b3 !important;
+}
+.app-shell [class*="text-indigo-700"],
+.app-shell [class*="text-indigo-800"] {
+  color: #d88a52 !important;
+}
+.app-shell [class*="text-indigo-900"] {
+  color: #edf1eb !important;
+}
+.app-shell [class*="text-indigo-500"] {
+  color: #d88a52 !important;
+}
+.app-shell [class*="bg-indigo-50"] {
+  background-color: #203842 !important;
+}
+.app-shell [class*="border-indigo-200"] {
+  border-color: #7d5a49 !important;
+}
+.app-shell [class*="bg-indigo-600"] {
+  background-color: #9a5034 !important;
+}
+.app-shell [class~="hover:bg-indigo-700"]:hover {
+  background-color: #b96845 !important;
+}
+.app-shell [class*="bg-slate-100"] {
+  background-color: #1d323b !important;
+}
+.app-shell [class~="hover:bg-slate-50"]:hover,
+.app-shell [class~="hover:bg-slate-100"]:hover {
+  background-color: #1d323b !important;
+}
+.app-shell [class*="bg-rose-50"] {
+  background-color: #3a252a !important;
+}
+.app-shell [class*="bg-amber-50"],
+.app-shell [class*="bg-amber-100"] {
+  background-color: #1d323b !important;
+}
+.app-shell [class*="border-rose-200"] {
+  border-color: #76444b !important;
+}
+.app-shell [class*="border-amber-100"],
+.app-shell [class*="border-amber-200"] {
+  border-color: #5b5541 !important;
+}
+.app-shell [class*="text-rose-700"] {
+  color: #e18d87 !important;
+}
+.app-shell [class*="text-rose-400"] {
+  color: #e18d87 !important;
+}
+.app-shell [class*="text-emerald-700"] {
+  color: #86b88e !important;
+}
+.app-shell [class*="text-orange-700"],
+.app-shell [class*="text-amber-700"] {
+  color: #d8a867 !important;
+}

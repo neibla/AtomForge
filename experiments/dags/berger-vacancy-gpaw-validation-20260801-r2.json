@@ -1,0 +1,228 @@
+{
+  "experiment_id": "berger-vacancy-gpaw-validation-20260801-r2",
+  "parent_experiment_id": "berger-vacancy-reproduction-20260801-r2",
+  "revision": 2,
+  "decision_node_id": "validate_promoted_candidate_with_dft",
+  "change_summary": "Run the selected Ta mp-50 held-out calculation on the verified single-H100 New-GPAW path. Relax the exact 127-atom frozen vacancy with LBFGS, random initial wavefunctions and warm calculator reuse; then run tight final vacancy and 128-atom pristine reference SCFs with the same PBE/350 eV/Gamma protocol. Enforce a 29-minute DFT wall limit, immutable attempt target, zero worker retries, exact artifact hashing, and fail-closed validation.",
+  "dag": [
+    {
+      "id": "prepare_paper_subset",
+      "type": "SCRIPT",
+      "depends_on": [],
+      "params": {
+        "script": "berger_vacancy_subset.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "manifest_path": "atomforge/data/berger_vacancy_subset.json",
+          "dataset_cache_dir": "/benchmark-cache",
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "selected_case_count": "count",
+          "dataset_checksum_passed": "dimensionless",
+          "minimum_supercell_length": "Å",
+          "dataset_cache_hit": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "reproduce_mace",
+      "type": "SCRIPT",
+      "depends_on": ["prepare_paper_subset"],
+      "params": {
+        "script": "berger_vacancy_mace.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "source_node": "prepare_paper_subset",
+          "device": "cuda",
+          "reproduction_tolerance_eV": 0.1,
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "case_count": "count",
+          "reproduction_pass_count": "count",
+          "mean_absolute_reproduction_error": "eV",
+          "max_absolute_reproduction_error": "eV",
+          "numerical_gate_passed": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "evaluate_mattersim",
+      "type": "SCRIPT",
+      "depends_on": ["prepare_paper_subset"],
+      "params": {
+        "script": "berger_vacancy_mattersim.py",
+        "execution_profile": "physics_gpu",
+        "arguments": {
+          "source_node": "prepare_paper_subset",
+          "device": "cuda",
+          "hardware": "Tesla T4"
+        },
+        "output_metrics": {
+          "case_count": "count",
+          "finite_case_count": "count",
+          "max_single_point_force": "eV/Å",
+          "numerical_gate_passed": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "select_dft_case",
+      "type": "SCRIPT",
+      "depends_on": [
+        "prepare_paper_subset",
+        "reproduce_mace",
+        "evaluate_mattersim"
+      ],
+      "params": {
+        "script": "vacancy_disagreement_rank.py",
+        "execution_profile": "analysis",
+        "arguments": {
+          "mace_node": "reproduce_mace",
+          "mattersim_node": "evaluate_mattersim",
+          "geometry_node": "prepare_paper_subset",
+          "expected_case_count": 5,
+          "promotion_threshold_eV": 0.25
+        },
+        "output_metrics": {
+          "candidate_count": "count",
+          "reproduction_pass_count": "count",
+          "eligible_candidate_count": "count",
+          "max_reproduction_error": "eV",
+          "max_cross_model_disagreement": "eV",
+          "promotion_made": "dimensionless",
+          "decision_gate_passed": "dimensionless"
+        },
+        "timeout_seconds": 60
+      }
+    },
+    {
+      "id": "run_independent_dft",
+      "type": "SCRIPT",
+      "depends_on": ["prepare_paper_subset", "select_dft_case"],
+      "params": {
+        "script": "gpaw_ta_vacancy.py",
+        "execution_profile": "dft_gpu",
+        "arguments": {
+          "selection_node": "select_dft_case",
+          "geometry_node": "prepare_paper_subset",
+          "artifact_dir": "/dft-artifacts/berger-vacancy-gpaw-validation-20260801-r2-h100-final",
+          "plane_wave_cutoff_eV": 350.0,
+          "electronic_temperature_eV": 0.2585,
+          "relaxation_energy_tolerance_eV": 0.0001,
+          "final_energy_tolerance_eV": 0.00001,
+          "force_tolerance_eV_per_A": 0.03,
+          "max_scf_iterations": 80,
+          "extra_bands": -20,
+          "max_ionic_steps": 30,
+          "max_displacement_A": 0.1,
+          "wall_time_limit_seconds": 1740,
+          "mpi_ranks": 1
+        },
+        "output_metrics": {
+          "dft_artifact_written": "dimensionless",
+          "dft_electronic_converged": "dimensionless",
+          "dft_ionic_converged": "dimensionless",
+          "dft_max_force": "eV/Å",
+          "dft_final_energy_change": "eV",
+          "dft_vacancy_formation_energy": "eV",
+          "dft_wall_time": "s",
+          "dft_optimizer_steps": "count",
+          "dft_gpu_mean_utilization_pct": "%",
+          "dft_gpu_peak_utilization_pct": "%",
+          "dft_result_ready": "dimensionless"
+        },
+        "timeout_seconds": 1800
+      }
+    },
+    {
+      "id": "validate_promoted_candidate_with_dft",
+      "type": "SCRIPT",
+      "depends_on": ["select_dft_case", "run_independent_dft"],
+      "params": {
+        "script": "vacancy_dft_validation.py",
+        "execution_profile": "analysis",
+        "arguments": {
+          "selection_node": "select_dft_case",
+          "dft_result_node": "run_independent_dft",
+          "force_tolerance_eV_per_A": 0.03,
+          "energy_tolerance_eV": 0.00001,
+          "minimum_calibration_cases": 30
+        },
+        "output_metrics": {
+          "dft_validation_gate_passed": "dimensionless",
+          "mace_absolute_error_to_dft": "eV",
+          "mattersim_absolute_error_to_dft": "eV",
+          "calibration_case_count_increment": "count"
+        },
+        "timeout_seconds": 60
+      }
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "frozen_subset_loaded",
+      "target_node": "prepare_paper_subset",
+      "metric": "selected_case_count",
+      "assertion": "target.selected_case_count == 5"
+    },
+    {
+      "id": "published_dataset_verified",
+      "target_node": "prepare_paper_subset",
+      "metric": "dataset_checksum_passed",
+      "assertion": "target.dataset_checksum_passed == 1"
+    },
+    {
+      "id": "paper_subset_reproduced",
+      "target_node": "reproduce_mace",
+      "metric": "reproduction_pass_count",
+      "assertion": "target.reproduction_pass_count == 5"
+    },
+    {
+      "id": "mace_outputs_finite",
+      "target_node": "reproduce_mace",
+      "metric": "numerical_gate_passed",
+      "assertion": "target.numerical_gate_passed == 1"
+    },
+    {
+      "id": "mattersim_subset_complete",
+      "target_node": "evaluate_mattersim",
+      "metric": "finite_case_count",
+      "assertion": "target.finite_case_count == 5"
+    },
+    {
+      "id": "mattersim_outputs_finite",
+      "target_node": "evaluate_mattersim",
+      "metric": "numerical_gate_passed",
+      "assertion": "target.numerical_gate_passed == 1"
+    },
+    {
+      "id": "bounded_decision_recorded",
+      "target_node": "select_dft_case",
+      "metric": "decision_gate_passed",
+      "assertion": "target.decision_gate_passed == 1"
+    },
+    {
+      "id": "dft_completed_under_30_minutes",
+      "target_node": "run_independent_dft",
+      "metric": "dft_wall_time",
+      "assertion": "target.dft_wall_time < 1800"
+    },
+    {
+      "id": "dft_result_ready",
+      "target_node": "run_independent_dft",
+      "metric": "dft_result_ready",
+      "assertion": "target.dft_result_ready == 1"
+    },
+    {
+      "id": "dft_validation_passed",
+      "target_node": "validate_promoted_candidate_with_dft",
+      "metric": "dft_validation_gate_passed",
+      "assertion": "target.dft_validation_gate_passed == 1"
+    }
+  ]
+}

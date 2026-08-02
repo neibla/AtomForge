@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.atomforge/
+.env
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Generated build and report artifacts
+experiments/reports/*.html
+experiments/results/
+experiments/artifacts/
+frontend/.generated/
+frontend/.vite/
+frontend/dist/
+
+# Generated local agent-skill installation state. Canonical sources live in skills/.
+.agents/
+skills-lock.json
+videos

@@ -1,0 +1,50 @@
+{
+  "contract_version": "v1",
+  "paper": {
+    "title": "Screening of material defects using universal machine-learning interatomic potentials",
+    "arxiv": "https://arxiv.org/abs/2504.06993",
+    "dataset": "https://zenodo.org/records/15025795",
+    "dataset_file": "Vacancies.json",
+    "dataset_download_url": "https://zenodo.org/records/15025795/files/Vacancies.json?download=1",
+    "dataset_md5": "af22ff74e73ab85a2e2698583b301714",
+    "materials_project_release": "v2023.11.1"
+  },
+  "selection_rule": "Five non-magnetic, elemental bcc records with unambiguous elemental chemical potentials; fixed before running either model.",
+  "cases": [
+    {
+      "case_id": "bcc-v",
+      "mp_id": "mp-146",
+      "expected_element": "V",
+      "vacancy_value_index": 0,
+      "paper_mace_chemical_potential_eV": -9.12
+    },
+    {
+      "case_id": "bcc-nb",
+      "mp_id": "mp-75",
+      "expected_element": "Nb",
+      "vacancy_value_index": 0,
+      "paper_mace_chemical_potential_eV": -10.08
+    },
+    {
+      "case_id": "bcc-ta",
+      "mp_id": "mp-50",
+      "expected_element": "Ta",
+      "vacancy_value_index": 0,
+      "paper_mace_chemical_potential_eV": -11.83
+    },
+    {
+      "case_id": "bcc-mo",
+      "mp_id": "mp-129",
+      "expected_element": "Mo",
+      "vacancy_value_index": 0,
+      "paper_mace_chemical_potential_eV": -10.72
+    },
+    {
+      "case_id": "bcc-w",
+      "mp_id": "mp-91",
+      "expected_element": "W",
+      "vacancy_value_index": 0,
+      "paper_mace_chemical_potential_eV": -12.85
+    }
+  ]
+}
